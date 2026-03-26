@@ -1,8 +1,18 @@
 // api/gemini.js
 export default async function handler(req, res) {
-  // Chỉ cho phép phương thức POST
+  // CORS headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Xử lý preflight request
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
+  // Chỉ cho phép POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Chỉ chấp nhận phương thức POST' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { message } = req.body;
@@ -11,11 +21,15 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Vui lòng nhập câu hỏi' });
   }
 
-  // Lấy API key từ environment variables (bảo mật)
+  // Lấy API key từ environment variables (BẢO MẬT)
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
   if (!GEMINI_API_KEY) {
-    return res.status(500).json({ error: 'API key chưa được cấu hình' });
+    console.error('Missing API key');
+    return res.status(500).json({ 
+      error: 'Chưa cấu hình API Key',
+      reply: '⚠️ API Key chưa được cấu hình. Vui lòng liên hệ quản trị viên để cài đặt API Key trên Vercel.'
+    });
   }
 
   // Prompt chuyên về Hóa học
@@ -30,7 +44,6 @@ export default async function handler(req, res) {
   Trả lời:`;
 
   try {
-    // Gọi API Gemini
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
@@ -39,9 +52,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         contents: [
           {
-            parts: [
-              { text: prompt }
-            ]
+            parts: [{ text: prompt }]
           }
         ],
         generationConfig: {
@@ -56,7 +67,7 @@ export default async function handler(req, res) {
     if (!response.ok) {
       console.error('Gemini API Error:', data);
       return res.status(500).json({ 
-        error: 'Lỗi API Gemini', 
+        error: 'Lỗi từ Gemini API',
         reply: 'Xin lỗi, API đang gặp vấn đề. Vui lòng thử lại sau!'
       });
     }
