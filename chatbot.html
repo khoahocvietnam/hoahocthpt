@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Hóa Học - Gemini AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .chat-container {
+            max-width: 900px;
+            width: 100%;
+            height: 85vh;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        .chat-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 18px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .chat-header h2 { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; }
+        .badge {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message { display: flex; gap: 12px; max-width: 85%; animation: fadeIn 0.3s; }
+        .user-message { align-self: flex-end; flex-direction: row-reverse; }
+        .user-message .message-content { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 20px 20px 5px 20px; }
+        .bot-message .message-content { background: white; color: #1f2937; border-radius: 20px 20px 20px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .message-avatar {
+            width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; background: #e5e7eb; flex-shrink: 0;
+        }
+        .user-message .message-avatar { background: #667eea; color: white; }
+        .bot-message .message-avatar { background: #10b981; color: white; }
+        .message-content { padding: 12px 16px; line-height: 1.5; font-size: 0.9rem; word-wrap: break-word; white-space: pre-wrap; }
+        .typing-indicator { display: flex; gap: 4px; padding: 12px 16px; }
+        .typing-indicator span { width: 8px; height: 8px; background: #9ca3af; border-radius: 50%; animation: typing 1.4s infinite; }
+        @keyframes typing { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-10px)} }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        .chat-input-area { padding: 20px; background: white; border-top: 1px solid #e5e7eb; }
+        .input-wrapper { display: flex; gap: 10px; }
+        .chat-input {
+            flex: 1; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 25px;
+            font-size: 0.9rem; resize: none; font-family: inherit;
+        }
+        .chat-input:focus { outline: none; border-color: #667eea; }
+        .send-btn {
+            width: 45px; height: 45px; background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none; border-radius: 50%; color: white; cursor: pointer;
+        }
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .suggestions {
+            display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;
+        }
+        .suggestion-btn {
+            background: #f3f4f6; border: none; padding: 5px 10px; border-radius: 20px;
+            font-size: 0.7rem; cursor: pointer; transition: all 0.2s;
+        }
+        .suggestion-btn:hover { background: #e5e7eb; }
+        .back-btn {
+            background: #e5e7eb; border: none; padding: 6px 12px; border-radius: 20px;
+            font-size: 0.75rem; cursor: pointer; margin-bottom: 10px;
+        }
+        @media (max-width: 768px) { .message { max-width: 95%; } .chat-header { flex-direction: column; text-align: center; } }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2><i class="fas fa-robot"></i> Chatbot Hóa Học <span class="badge">Gemini AI</span></h2>
+            <div class="badge"><i class="fas fa-shield-alt"></i> API bảo mật</div>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+                <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                <div class="message-content">
+                    <p>🧪 <strong>Chào bạn! Tôi là Chatbot Hóa học với Google Gemini AI</strong></p>
+                    <p>Tôi có thể giúp bạn:</p>
+                    <p>• 📖 Giải thích lý thuyết Hóa học<br>
+                    • 🧪 Cân bằng phương trình hóa học<br>
+                    • 📊 Tính toán nồng độ, pH, số mol<br>
+                    • 🔬 Hướng dẫn làm bài tập<br>
+                    • 💡 Mẹo học tập hiệu quả</p>
+                    <p><strong>Hãy hỏi tôi bất cứ điều gì về Hóa học nhé! 🎓</strong></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input-area">
+            <button class="back-btn" onclick="window.location.href='index.html'"><i class="fas fa-arrow-left"></i> Về trang chủ</button>
+            <div class="input-wrapper">
+                <textarea class="chat-input" id="chatInput" rows="1" placeholder="Hỏi tôi về Hóa học... (VD: Cân bằng phương trình Fe + O2 → Fe2O3?)"></textarea>
+                <button class="send-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+            </div>
+            <div class="suggestions">
+                <button class="suggestion-btn" data-q="Cách cân bằng phương trình hóa học?">⚖️ Cân bằng PT</button>
+                <button class="suggestion-btn" data-q="Tính pH của dung dịch HCl 0.01M">🔬 Tính pH</button>
+                <button class="suggestion-btn" data-q="Công thức tính nồng độ mol">📊 Nồng độ mol</button>
+                <button class="suggestion-btn" data-q="Bảng tuần hoàn có cấu tạo như thế nào?">📖 Bảng tuần hoàn</button>
+                <button class="suggestion-btn" data-q="Phản ứng oxi hóa khử là gì?">⚡ Oxi hóa khử</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isSending = false;
+        const API_URL = '/api/gemini';
+
+        function addMessage(content, isUser) {
+            const container = document.getElementById('chatMessages');
+            const div = document.createElement('div');
+            div.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+            div.innerHTML = `<div class="message-avatar"><i class="fas ${isUser ? 'fa-user' : 'fa-robot'}"></i></div>
+                            <div class="message-content">${content.replace(/\n/g, '<br>').replace(/\*/g, '•')}</div>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function showTyping() {
+            const container = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot-message';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `<div class="message-avatar"><i class="fas fa-robot"></i></div>
+                                  <div class="message-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+            container.appendChild(typingDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+
+        async function sendMessage() {
+            if (isSending) return;
+            
+            const input = document.getElementById('chatInput');
+            const question = input.value.trim();
+            if (!question) return;
+            
+            addMessage(question, true);
+            input.value = '';
+            input.style.height = 'auto';
+            isSending = true;
+            document.getElementById('sendBtn').disabled = true;
+            
+            showTyping();
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: question })
+                });
+                
+                const data = await response.json();
+                hideTyping();
+                
+                if (data.reply) {
+                    addMessage(data.reply, false);
+                } else {
+                    addMessage('❌ Lỗi: ' + (data.error || 'Không nhận được phản hồi'), false);
+                }
+            } catch (error) {
+                hideTyping();
+                addMessage('❌ Lỗi kết nối: ' + error.message, false);
+            } finally {
+                isSending = false;
+                document.getElementById('sendBtn').disabled = false;
+            }
+        }
+
+        const textarea = document.getElementById('chatInput');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+        
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        textarea.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        document.querySelectorAll('.suggestion-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('chatInput').value = btn.dataset.q;
+                sendMessage();
+            });
+        });
+    </script>
+</body>
+</html>
