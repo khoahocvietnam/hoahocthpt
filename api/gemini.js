@@ -1,75 +1,65 @@
-// api/gemini.js
+// api/gemini.js - Phiên bản đơn giản để test
 export default async function handler(req, res) {
-  // CORS headers
+  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Xử lý preflight request
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Chỉ cho phép POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed. Use POST.' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { message } = req.body;
 
-  if (!message || message.trim() === '') {
-    return res.status(400).json({ error: 'Vui lòng nhập câu hỏi' });
+  if (!message) {
+    return res.status(400).json({ error: 'No message provided' });
   }
 
-  // Lấy API key từ environment variables
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+  // Lấy API key từ environment
+  const API_KEY = process.env.GEMINI_API_KEY;
 
-  // Kiểm tra API key
-  if (!GEMINI_API_KEY) {
-    console.error('MISSING API KEY');
+  // KIỂM TRA API KEY CÓ TỒN TẠI KHÔNG
+  if (!API_KEY) {
+    console.log('ERROR: GEMINI_API_KEY not found in environment');
     return res.status(500).json({ 
-      error: 'API key chưa được cấu hình',
-      reply: '⚠️ Chưa cấu hình API Key. Vui lòng thêm GEMINI_API_KEY vào Environment Variables trên Vercel.'
+      error: 'API key not configured',
+      debug: 'GEMINI_API_KEY is missing from environment variables'
     });
   }
 
-  const prompt = `Bạn là trợ lý AI chuyên về Hóa học, hỗ trợ học sinh THPT (lớp 10, 11, 12). 
-Hãy trả lời câu hỏi sau một cách chi tiết, dễ hiểu, có giải thích rõ ràng.
-Trả lời bằng tiếng Việt.
-
-Câu hỏi: ${message}
-
-Trả lời:`;
+  console.log('API Key exists, calling Gemini...');
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 1000 }
-      })
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: message }] }]
+        })
+      }
+    );
 
     const data = await response.json();
+    console.log('Gemini response status:', response.status);
 
     if (!response.ok) {
-      console.error('Gemini API Error:', data);
       return res.status(500).json({ 
         error: data.error?.message || 'Gemini API error',
-        reply: '❌ Lỗi từ Gemini API. Vui lòng thử lại sau.'
+        details: data
       });
     }
 
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Xin lỗi, tôi chưa có câu trả lời.';
-    
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
     return res.status(200).json({ reply });
 
   } catch (error) {
-    console.error('Server Error:', error);
-    return res.status(500).json({ 
-      error: error.message,
-      reply: '❌ Đã có lỗi xảy ra. Vui lòng thử lại sau!'
-    });
+    console.error('Error:', error);
+    return res.status(500).json({ error: error.message });
   }
 }
