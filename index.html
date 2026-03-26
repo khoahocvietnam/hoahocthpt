@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học Hóa THPT - Trắc nghiệm & Chatbot AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; }
+        .header { text-align: center; color: white; margin-bottom: 50px; }
+        .header h1 { font-size: 2.5rem; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .header p { font-size: 1.1rem; opacity: 0.9; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 40px; }
+        .feature-card {
+            background: white; border-radius: 20px; padding: 35px 25px; text-align: center;
+            text-decoration: none; transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        .feature-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .feature-icon { font-size: 3.5rem; margin-bottom: 20px; }
+        .feature-card h3 { font-size: 1.5rem; color: #1f2937; margin-bottom: 15px; }
+        .feature-card p { color: #6b7280; line-height: 1.6; }
+        .badge { display: inline-block; background: #e5e7eb; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; margin-top: 15px; color: #4b5563; }
+        footer { text-align: center; color: rgba(255,255,255,0.7); margin-top: 60px; padding: 20px; }
+        @media (max-width: 768px) { .header h1 { font-size: 1.8rem; } .features { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-flask"></i> Học Hóa THPT <i class="fas fa-atom"></i></h1>
+            <p>Hệ thống học tập thông minh - Trắc nghiệm theo bài + Chatbot AI</p>
+        </div>
+        <div class="features">
+            <div class="feature-card" onclick="window.location.href='tracnghiem.html'">
+                <div class="feature-icon"><i class="fas fa-question-circle" style="color: #667eea;"></i></div>
+                <h3>📝 Trắc nghiệm Hóa học</h3>
+                <p>60+ bài học với 3 dạng câu hỏi: Trắc nghiệm, Tự luận ngắn, Đúng/Sai. Có đáp án và giải thích chi tiết.</p>
+                <div class="badge"><i class="fas fa-graduation-cap"></i> Lớp 10 · 11 · 12</div>
+            </div>
+            <div class="feature-card" onclick="window.location.href='chatbot.html'">
+                <div class="feature-icon"><i class="fas fa-robot" style="color: #10b981;"></i></div>
+                <h3>🤖 Chatbot Hóa học AI</h3>
+                <p>Trợ lý ảo thông minh, trả lời mọi câu hỏi về Hóa học. Hỗ trợ giải bài tập, lý thuyết, mẹo học tập.</p>
+                <div class="badge"><i class="fas fa-brain"></i> AI 24/7 · Hàng triệu câu hỏi</div>
+            </div>
+        </div>
+        <footer><p>© 2026 - Hệ thống hỗ trợ học tập Hóa học THPT</p></footer>
+    </div>
+</body>
+</html>
